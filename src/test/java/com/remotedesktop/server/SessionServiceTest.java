@@ -1,8 +1,10 @@
 package com.remotedesktop.server;
 
 import com.remotedesktop.server.model.Session;
+import com.remotedesktop.server.model.SessionStatus;
 import com.remotedesktop.server.service.SessionService;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SessionServiceTest {
@@ -13,7 +15,7 @@ class SessionServiceTest {
     void shouldCreateSessionWithCode() {
         Session session = sessionService.createSession("host-1");
         assertNotNull(session.getSessionCode());
-        assertEquals("WAITING", session.getStatus());
+        assertEquals(SessionStatus.WAITING_FOR_VIEWER, session.getStatus());
         assertEquals("host-1", session.getHostId());
     }
 
@@ -21,7 +23,7 @@ class SessionServiceTest {
     void shouldJoinSession() {
         Session session = sessionService.createSession("host-1");
         Session joined = sessionService.joinSession(session.getSessionCode(), "viewer-1");
-        assertEquals("CONNECTED", joined.getStatus());
+        assertEquals(SessionStatus.WAITING_FOR_HOST, joined.getStatus());
         assertEquals("viewer-1", joined.getViewerId());
     }
 
@@ -29,6 +31,24 @@ class SessionServiceTest {
     void shouldThrowWhenSessionNotFound() {
         assertThrows(RuntimeException.class, () ->
                 sessionService.joinSession("WRONG1", "viewer-1")
+        );
+    }
+
+    @Test
+    void shouldRejectHostJoiningOwnSessionAsViewer() {
+        Session session = sessionService.createSession("host-1");
+        assertThrows(RuntimeException.class, () ->
+                sessionService.joinSession(session.getSessionCode(), "host-1")
+        );
+    }
+
+    @Test
+    void shouldRejectJoinAfterTermination() {
+        Session session = sessionService.createSession("host-1");
+        sessionService.terminateSession(session.getSessionCode(), "host-1", "done");
+
+        assertThrows(RuntimeException.class, () ->
+                sessionService.joinSession(session.getSessionCode(), "viewer-1")
         );
     }
 }

@@ -4,6 +4,7 @@ import com.remotedesktop.server.model.Session;
 import com.remotedesktop.server.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,14 +14,12 @@ public class SessionController {
 
     private final SessionService sessionService;
 
-    // Host calls this to start sharing → gets a session code back
     @PostMapping("/create")
-    public ResponseEntity<Session> createSession(@RequestParam String hostId) {
-        Session session = sessionService.createSession(hostId);
+    public ResponseEntity<Session> createSession(Authentication authentication) {
+        Session session = sessionService.createSession(authentication.getName());
         return ResponseEntity.ok(session);
     }
 
-    // Viewer calls this to check if a code exists
     @GetMapping("/{code}")
     public ResponseEntity<Session> getSession(@PathVariable String code) {
         Session session = sessionService.getSession(code);
@@ -30,19 +29,15 @@ public class SessionController {
         return ResponseEntity.ok(session);
     }
 
-    // Viewer calls this to join a session
     @PostMapping("/{code}/join")
-    public ResponseEntity<Session> joinSession(
-            @PathVariable String code,
-            @RequestParam String viewerId) {
-        Session session = sessionService.joinSession(code, viewerId);
+    public ResponseEntity<Session> joinSession(@PathVariable String code, Authentication authentication) {
+        Session session = sessionService.joinSession(code, authentication.getName());
         return ResponseEntity.ok(session);
     }
 
-    // Host calls this to stop sharing
     @DeleteMapping("/{code}")
-    public ResponseEntity<Void> deleteSession(@PathVariable String code) {
-        sessionService.deleteSession(code);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Session> terminateSession(@PathVariable String code, Authentication authentication) {
+        Session session = sessionService.terminateSession(code, authentication.getName(), "Host terminated the session");
+        return ResponseEntity.ok(session);
     }
 }
