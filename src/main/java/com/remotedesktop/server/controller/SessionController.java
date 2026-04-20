@@ -2,17 +2,19 @@ package com.remotedesktop.server.controller;
 
 import com.remotedesktop.server.model.Session;
 import com.remotedesktop.server.service.SessionService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/sessions")
-@RequiredArgsConstructor
 public class SessionController {
 
     private final SessionService sessionService;
+
+    public SessionController(SessionService sessionService) {
+        this.sessionService = sessionService;
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Session> createSession(Authentication authentication) {

@@ -5,19 +5,22 @@ import com.remotedesktop.server.model.Session;
 import com.remotedesktop.server.model.SocketMessage;
 import com.remotedesktop.server.service.SessionService;
 import com.remotedesktop.server.service.SessionException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
 public class RemoteDesktopHandler extends TextWebSocketHandler {
+    private static final Logger log = LoggerFactory.getLogger(RemoteDesktopHandler.class);
 
     private final SessionService sessionService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public RemoteDesktopHandler(SessionService sessionService) {
+        this.sessionService = sessionService;
+    }
 
     // Called when a client connects
     @Override

@@ -2,7 +2,6 @@ package com.remotedesktop.server.auth;
 
 import com.remotedesktop.server.jwt.JwtUtil;
 import com.remotedesktop.server.model.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final JwtUtil jwtUtil;
@@ -18,6 +16,11 @@ public class AuthService {
 
     // In-memory user store — same idea as sessions, we add a real DB later
     private final Map<String, User> users = new ConcurrentHashMap<>();
+
+    public AuthService(JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public AuthResponse register(AuthRequest request) {
         if (users.containsKey(request.getUsername())) {

@@ -1,7 +1,6 @@
 package com.remotedesktop.server.config;
 
 import com.remotedesktop.server.handler.RemoteDesktopHandler;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.*;
@@ -9,10 +8,13 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 
 @Configuration
 @EnableWebSocket
-@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final RemoteDesktopHandler remoteDesktopHandler;
+
+    public WebSocketConfig(RemoteDesktopHandler remoteDesktopHandler) {
+        this.remoteDesktopHandler = remoteDesktopHandler;
+    }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
